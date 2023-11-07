@@ -1,4 +1,5 @@
 const User = require('./auth-model')
+const bcrypt = require('bcryptjs')
 
 async function checkUsernameFree(req, res, next) {
     try{
@@ -35,9 +36,19 @@ async function checkUsernameFree(req, res, next) {
       next()
     }
   }
+
+  async function verifyPassword(req, res, next) {
+    const { password } = req.body
+    if (bcrypt.compareSync(password, req.user.password)) {
+      next()
+    } else {
+      next({ status: 401, message: 'invalid credentials' })
+    }
+  }
   
   module.exports = {
     checkUsernameFree,
     checkUsernameExists,
-    checkPayload
+    checkPayload,
+    verifyPassword
   }

@@ -12,7 +12,9 @@ router.post('/register', checkPayload, checkUsernameFree, (req, res, next) => {
     .then(saved => {
       res.status(201).json(saved)
     })
-    .catch(next)
+    .catch(err => {
+      next(err)
+    })
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -40,8 +42,23 @@ router.post('/register', checkPayload, checkUsernameFree, (req, res, next) => {
   */
 });
 
-router.post('/login', checkUsernameExists, (req, res) => {
-  res.end('implement login, please!');
+router.post('/login', checkUsernameExists, checkPayload, (req, res, next) => {
+  let { username, password } = req.body
+
+  User.findBy({ username })
+    .first()
+    .then(user => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        res.status(200).json({
+          message: `welcome, ${user.username}`,
+        })
+      } else {
+        next({ status: 401, message: 'invalid credentials' })
+      }
+    })
+    .catch(err => {
+      next(err)
+    })
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -65,6 +82,13 @@ router.post('/login', checkUsernameExists, (req, res) => {
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
   */
+});
+
+router.use((err, req, res, next) => { // eslint-disable-line
+  res.status(err.status || 500).json({
+      message: err.message,
+      stack: err.stack,
+  });
 });
 
 module.exports = router;
