@@ -7,7 +7,7 @@ async function checkUsernameFree(req, res, next) {
             next()
         } else {
             next({status: 422, message: 'username taken'})
-        }
+        } 
     } catch (err) {
       next(err)
     }
@@ -27,8 +27,8 @@ async function checkUsernameFree(req, res, next) {
     }
   }
   
-  async function checkPassword(req, res, next) {
-    if (!req.body.password) {
+  async function checkPayload(req, res, next) {
+    if (!req.body.password || !req.body.username) {
       next({ status: 422, message: 'username and password required' })
     } else {
       next()
@@ -38,5 +38,5 @@ async function checkUsernameFree(req, res, next) {
   module.exports = {
     checkUsernameFree,
     checkUsernameExists,
-    checkPassword
+    checkPayload
   }
