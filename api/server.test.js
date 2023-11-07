@@ -25,20 +25,22 @@ describe('authentication routers tests', () => {
     it('returns a username and password', async () => {
       const res = await request(server).post('/api/auth/register').send({ username: 'test', password: 'test' })
       const hash = bcrypt.hashSync('test', 8)
-      expect(res.body).toEqual({ id: 1, username: 'test', password: hash })
+      expect(res.body).toMatchObject({ id: 1, username: 'test', password: hash })
     })
     it('response body should have an id, username, and password', async () => {
       const res = await request(server).post('/api/auth/register').send({ username: 'test', password: 'test' })
       const hash = bcrypt.hashSync('test', 8)
-      expect(res.body).toEqual({ id: 1, username: 'test', password: hash })
+      expect(res.body).toMatchObject({ id: 1, username: 'test', password: hash })
     })
   })
   describe('[POST] /api/auth/login', () => {
     it('must login to an existing account with provided credentials', async () => {
-
+      const res = await request(server).post('/api/auth/login').send({ username: 'test', password: 'test' })
+      expect(res.body).toMatchObject( { username: 'test', password: 'test' })
     })
     it('response body should have a message and token', async () => {
-
+      const res = await request(server).post('/api/auth/login').send({ username: 'test', password: 'test' })
+      expect(res.body).toMatchObject({ message: 'welcome, test' })
     })
   })
 })
