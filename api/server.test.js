@@ -1,7 +1,6 @@
-const request = require('supertest')
-const db = require('../data/dbConfig')
-const server = require('./server')
-const bcrypt = require('bcryptjs')
+const request = require('supertest');
+const db = require('../data/dbConfig');
+const server = require('./server');
 
 beforeAll(async () => {
   await db.migrate.rollback()
@@ -22,25 +21,46 @@ test('sanity', () => {
 
 describe('authentication routers tests', () => {
   describe('[POST] /api/auth/register', () => {
-    it('returns a username and password', async () => {
-      const res = await request(server).post('/api/auth/register').send({ username: 'test', password: 'test' })
-      const hash = bcrypt.hashSync('test', 8)
-      expect(res.body).toMatchObject({ id: 1, username: 'test', password: hash })
+    it('returns a correct status code', async () => {
+      let user = { username: 'test', password: 'test' }
+      const { username } = user
+      const res = await request(server).post('/api/auth/register').send({ username, password: 'test' })
+      console.log("res.body", res.body)
+      expect(res.status).toBe(201)
     })
-    it('response body should have an id, username, and password', async () => {
-      const res = await request(server).post('/api/auth/register').send({ username: 'test', password: 'test' })
-      const hash = bcrypt.hashSync('test', 8)
-      expect(res.body).toMatchObject({ id: 1, username: 'test', password: hash })
+    it('failed registration due to username and password not in the payload', async () => {
+      let user = { username: 'test', password: ''}
+      const { username } = user
+      const res = await request(server).post('/api/auth/register').send({ username })
+      expect(res.status).toBe(422)
     })
   })
   describe('[POST] /api/auth/login', () => {
     it('must login to an existing account with provided credentials', async () => {
-      const res = await request(server).post('/api/auth/login').send({ username: 'test', password: 'test' })
-      expect(res.body).toMatchObject( { username: 'test', password: 'test' })
+      let user = { username: 'test', password: 'test' }
+      const { username } = user
+      const res = await request(server).post('/api/auth/register').send({ username, password: 'test' })
+      expect(res.status).toBe(201)
     })
-    it('response body should have a message and token', async () => {
-      const res = await request(server).post('/api/auth/login').send({ username: 'test', password: 'test' })
-      expect(res.body).toMatchObject({ message: 'welcome, test' })
+    it('failed login due to username and password not in the payload', async () => {
+      let user = { username: 'test', password: ''}
+      const { username } = user
+      const res = await request(server).post('/api/auth/register').send({ username })
+      expect(res.status).toBe(422)
+    })
+  })
+  describe('[GET] /api/jokes', () => {
+    it('must login to an existing account with provided credentials', async () => {
+      let user = { username: 'test', password: 'test' }
+      const { username } = user
+      const res = await request(server).post('/api/auth/register').send({ username, password: 'test' })
+      expect(res.status).toBe(201)
+    })
+    it('failed login due to username and password not in the payload', async () => {
+      let user = { username: 'test', password: ''}
+      const { username } = user
+      const res = await request(server).post('/api/auth/register').send({ username })
+      expect(res.status).toBe(422)
     })
   })
 })

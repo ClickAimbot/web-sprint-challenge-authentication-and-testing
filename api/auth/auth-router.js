@@ -9,6 +9,7 @@ const { checkUsernameFree,
 
 router.post('/register', checkUsernameFree, checkPassword, (req, res, next) => {
   const { username, password } = req.body
+  
   const hash = bcrypt.hashSync(password, 8)
   User.add({ username, password: hash })
     .then(saved => {
