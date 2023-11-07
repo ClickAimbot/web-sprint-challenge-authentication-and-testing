@@ -1,6 +1,7 @@
 const request = require('supertest');
 const db = require('../data/dbConfig');
 const server = require('./server');
+const Jokes = require('./jokes/jokes-data')
 
 beforeAll(async () => {
   await db.migrate.rollback()
@@ -50,17 +51,13 @@ describe('authentication routers tests', () => {
     })
   })
   describe('[GET] /api/jokes', () => {
-    it('must login to an existing account with provided credentials', async () => {
-      let user = { username: 'test', password: 'test' }
-      const { username } = user
-      const res = await request(server).post('/api/auth/register').send({ username, password: 'test' })
-      expect(res.status).toBe(201)
+    it('can find joke from dummy data', async () => {
+      let jokes = await Jokes.find()
+      expect(jokes).toHaveLength(3)
     })
-    it('failed login due to username and password not in the payload', async () => {
-      let user = { username: 'test', password: ''}
-      const { username } = user
-      const res = await request(server).post('/api/auth/register').send({ username })
-      expect(res.status).toBe(422)
+    it('restriced access due to no token', async () => {
+      const res = await request(server).get('/api/jokes')
+      expect(res.status).toBe(401)
     })
   })
 })
