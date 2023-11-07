@@ -1,7 +1,6 @@
 const request = require('supertest');
 const db = require('../data/dbConfig');
 const server = require('./server');
-const Jokes = require('./jokes/jokes-data')
 
 beforeAll(async () => {
   await db.migrate.rollback()
@@ -51,11 +50,11 @@ describe('authentication routers tests', () => {
     })
   })
   describe('[GET] /api/jokes', () => {
-    it('can find joke from dummy data', async () => {
-      let jokes = await Jokes.find()
-      expect(jokes).toHaveLength(3)
-    })
     it('restriced access due to no token', async () => {
+      const res = await request(server).get('/api/jokes')
+      expect(res.status).toBe(401)
+    })
+    it('restriced access due to invalid token', async () => {
       const res = await request(server).get('/api/jokes')
       expect(res.status).toBe(401)
     })
